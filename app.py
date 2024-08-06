@@ -2,12 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import mysql.connector
 
 app = Flask(__name__)
-app.secret_key = '8c3b25fff694cf6cfb5f053ac8a57712'  # Necessary for flashing messages
+app.secret_key = '#####'  # Necessary for flashing messages
 
 connection = mysql.connector.connect(
     host='localhost',
     user='root',
-    password='12345678',
+    password='#####',
     database='booking'
 )
 
