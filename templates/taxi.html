@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Book Hotel Room</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+<style>
+body,h1,h2,h3,h4,h5,h6 {font-family: "Raleway", Arial, Helvetica, sans-serif}
+</style>
+</head>
+<body class="w3-light-grey">
+
+<!-- Navigation Bar -->
+<div class="w3-bar w3-white w3-xlarge">
+  <a href="{{url_for('hotel')}}" class="w3-bar-item w3-button w3-blue w3-mobile"><i class="fa fa-car w3-margin-right"></i>Logo</a>
+  <a href="{{url_for('index')}}" class="w3-bar-item w3-button w3-mobile">Flights</a>
+  <a href="{{url_for('hotel')}}" class="w3-bar-item w3-button w3-mobile">Hotel</a>
+  <a href="#contact" class="w3-bar-item w3-button w3-right w3-light-grey w3-mobile">Contact</a>
+</div>
+
+<!-- Header -->
+<header class="w3-display-container w3-content" style="max-width:1500px;">
+  <img class="w3-image" src="{{url_for('static', filename='images/Hotel.avif')}}" alt="The Hotel" style="min-width:1000px" width="1500" height="800">
+  <div class="w3-display-middle w3-padding w3-col l6 m8">
+    <div class="w3-container w3-blue">
+      <h3><i class="fa fa-car w3-margin-right"></i>Find a Cab</h3>
+    </div>
+    <div class="w3-container w3-white w3-padding-16">
+      <form action="{{url_for('search')}}" method="post">
+        <div class="w3-row-padding" style="margin:0 -16px;">
+          <div class="w3-half w3-margin-bottom">
+            <label><i class="fa fa-map-marker"></i> Pick-up Point</label>
+            <input class="w3-input w3-border" type="text" placeholder="Nairobi" name="pickup_point" required>
+          </div>
+          <div class="w3-half">
+            <label><i class="fa fa-calendar-o"></i> Date</label>
+            <input class="w3-input w3-border" type="date" placeholder="DD MM YYYY" name="date" required>
+          </div>
+        </div>
+        <button class="w3-button w3-dark-grey" type="submit"><i class="fa fa-search w3-margin-right"></i> Search availability</button>
+      </form>
+    </div>
+  </div>
+</header>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+  <div class="w3-container w3-padding-32 w3-center">
+    {% for category, message in messages %}
+      <div class="w3-panel w3-{{ category }}">
+        <p><h1>{{ message }}</h1></p>
+       </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endwith %}
+
+<!-- Search Results -->
+{% if results %}
+<div class="w3-container w3-padding-32">
+  <h3>Available Taxis</h3>
+  <ul class="w3-ul w3-card-4">
+    {% for taxi in results %}
+    <li class="details">
+      <span class="w3-large">{{ taxi['size'] }}</span><br>
+      <span>Destination: {{ taxi['destination'] }}</span><br>
+      <span>Price: {{ taxi['Price'] }}</span>
+      <span>Pick Up: {{ taxi['pickup'] }}</span>
+      <button class="btn" onclick="openModal('modal{{ loop.index }}', this)" 
+              data-destination="{{ taxi['destination'] }}" 
+              data-size="{{ taxi['size'] }}" 
+              data-Price="{{ taxi['Price'] }}"
+              data-pickup="{{ taxi['pickup'] }}" >Book</button>
+
+      <!-- The Modal -->
+      <div id="modal{{ loop.index }}" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="closeModal('modal{{ loop.index }}')">&times;</span>
+          <p>Proceed to book a {{ taxi['size'] }} size taxi to {{ taxi['destination'] }}  for KSH {{ taxi['Price'] }}  from 
+            {{ taxi['pickup'] }}.
+          </p>
+          <form action="{{ url_for('book_taxi') }}" method="post">
+            <input type="hidden" name="destination" id="destination{{ loop.index }}">
+            <input type="hidden" name="Price" id="price{{ loop.index }}">
+            <input type="hidden" name="pickup" id="pickup{{ loop.index }}">
+            <input type="hidden" name="size" id="size{{ loop.index }}">
+          
+            <div class="w3-margin-bottom">
+              <label>Full Name</label>
+              <input class="w3-input w3-border" type="text" name="fullname" required>
+            </div>
+            <div class="w3-margin-bottom">
+              <label>Email</label>
+              <input class="w3-input w3-border" type="email" name="email" required>
+            </div>
+            <div class="w3-margin-bottom">
+              <label>Contact</label>
+              <input class="w3-input w3-border" type="text" name="contact" required>
+            </div>
+            <div class="w3-margin-bottom">
+              <label>Payment Method</label>
+              <input class="w3-input w3-border" type="text" name="paymentmethod" required>
+            </div>
+            <button class="w3-button w3-red" type="submit">Book</button>
+            <button type="button" class="w3-button w3-gray" onclick="closeModal('modal{{ loop.index }}')">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<script>
+  function openModal(modalId, btn) {
+    document.getElementById(modalId).style.display = "block";
+    
+    document.getElementById('destination' + modalId.replace('modal', '')).value = btn.getAttribute('data-destination');
+    document.getElementById('Price' + modalId.replace('modal', '')).value = btn.getAttribute('data-Price');
+    document.getElementById('size' + modalId.replace('modal', '')).value = btn.getAttribute('data-size');
+    document.getElementById('pickup' + modalId.replace('modal', '')).value = btn.getAttribute('data-pickup');
+    
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = "none";
+  }
+
+  window.onclick = function(event) {
+    var modals = document.getElementsByClassName('modal');
+    for (var i = 0; i < modals.length; i++) {
+      if (event.target == modals[i]) {
+        modals[i].style.display = "none";
+      }
+    }
+  }
+</script>
+
+   
+
+<!-- Footer -->
+<footer class="w3-padding-32 w3-black w3-center w3-margin-top">
+  <h5>Find Us On</h5>
+  <div class="w3-xlarge w3-padding-16">
+    <i class="fa fa-facebook-official w3-hover-opacity"></i>
+    <i class="fa fa-instagram w3-hover-opacity"></i>
+    <i class="fa fa-snapchat w3-hover-opacity"></i>
+    <i class="fa fa-pinterest-p w3-hover-opacity"></i>
+    <i class="fa fa-twitter w3-hover-opacity"></i>
+    <i class="fa fa-linkedin w3-hover-opacity"></i>
+  </div>
+  <p> &COPY; Copyright 2024</p>
+</footer>
+
+<!-- Add Google Maps -->
+<script>
+function myMap() {
+  myCenter=new google.maps.LatLng(41.878114, -87.629798);
+  var mapOptions= {
+    center:myCenter,
+    zoom:12, scrollwheel: false, draggable: false,
+    mapTypeId:google.maps.MapTypeId.ROADMAP
+  };
+  var map=new google.maps.Map(document.getElementById("googleMap"),mapOptions);
+
+  var marker = new google.maps.Marker({
+    position: myCenter,
+  });
+  marker.setMap(map);
+}
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBu-916DdpKAjTmJNIgngS6HL_kDIKU0aU&callback=myMap"></script>
+
+</body>
+</html>

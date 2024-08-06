@@ -1,0 +1,81 @@
+header.w3-display-container {
+    height: 500px; /* Reduced height */
+}
+
+header img.w3-image {
+    height: 500px; 
+    object-fit: cover; 
+}
+.w3-center-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+.w3-bar{
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.btn{
+    color: white;
+    border-style: none;
+    border-radius: 10px;
+    width: 90px;
+    text-align: center;
+    background-color: rgb(196, 35, 35);
+    height: 30px;
+}
+.btn:hover{
+    opacity: 0.5;
+}
+.details{
+    padding: 16px;
+    display: flex; 
+    flex-direction: row; 
+    align-items:center ;
+    justify-content: space-evenly;
+}
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 5px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+  
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}

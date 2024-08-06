@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Book Hotel Room</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+<style>
+body,h1,h2,h3,h4,h5,h6 {font-family: "Raleway", Arial, Helvetica, sans-serif}
+</style>
+</head>
+<body class="w3-light-grey">
+
+<!-- Navigation Bar -->
+<div class="w3-bar w3-white w3-xlarge">
+  <a href="{{url_for('hotel')}}" class="w3-bar-item w3-button w3-green w3-mobile"><i class="fa fa-bed w3-margin-right"></i>Logo</a>
+  <a href="{{url_for('index')}}" class="w3-bar-item w3-button w3-mobile">Flights</a>
+  <a href="{{url_for('taxi')}}" class="w3-bar-item w3-button w3-mobile">Taxi</a>
+  <a href="#contact" class="w3-bar-item w3-button w3-right w3-light-grey w3-mobile">Contact</a>
+</div>
+<!-- Header -->
+<header class="w3-display-container w3-content" style="max-width:1500px;">
+  <img class="w3-image" src="{{url_for('static', filename='images/Hotel.avif')}}" alt="The Hotel" style="min-width:1000px" width="1500" height="800">
+  <div class="w3-display-middle w3-padding w3-col l6 m8">
+    <div class="w3-container w3-green">
+      <h3><i class="fa fa-bed w3-margin-right"></i>Find a Hotel</h3>
+    </div>
+    <div class="w3-container w3-white w3-padding-16">
+      <form action="{{url_for('search_hotel')}}"  method="post">
+        <div class="w3-row-padding" style="margin:0 -16px;">
+          <div class="w3-half w3-margin-bottom">
+            <label><i class="fa fa-plane"></i> Enter City</label>
+            <input class="w3-input w3-border" type="text" placeholder="Nairobi" name="city" required>
+          </div>
+          <div class="w3-half">
+            <label><i class="fa fa-calendar-o"></i> Check In</label>
+            <input class="w3-input w3-border" type="date" placeholder="DD MM YYYY" name="CheckIn" required>
+          </div>
+        </div>
+        <div class="w3-row-padding" style="margin:8px -16px;">
+          <div class="w3-half w3-margin-bottom">
+            <label><i class="fa fa-male"></i> Adults</label>
+            <input class="w3-input w3-border" type="number" value="1" name="Adults" min="1" max="6">
+          </div>
+          <div class="w3-half">
+            <label><i class="fa fa-child"></i> Kids</label>
+          <input class="w3-input w3-border" type="number" value="0" name="Kids" min="0" max="6">
+          </div>
+        </div>
+        <button class="w3-button w3-dark-grey" type="submit"><i class="fa fa-search w3-margin-right"></i> Search availability</button>
+      </form>
+    </div>
+  </div>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+  <div class="w3-container w3-padding-32 w3-center">
+    {% for category, message in messages %}
+      <div class="w3-panel w3-{{ category }}">
+        <p><h1>{{ message }}</h1></p>
+       </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endwith %}
+
+{% if results %}
+<div class="w3-container w3-padding-32">
+  <h3>Available Hotels</h3>
+  <ul class="w3-ul w3-card-4">
+    {% for hotels in results %}
+    <li class="details">
+      <span >City: {{ hotels['city'] }}</span><br>
+      <span>Check In: {{ hotels['date'] }}</span><br>
+      <span>Price: {{ hotels['price'] }}</span>
+      <span>Hotel Name: {{ hotels['Name'] }}</span>
+      <button class="btn" onclick="openModal('modal{{ loop.index }}', this)" 
+              data-city="{{ hotels['city'] }}" 
+              data-date="{{ hotels['date'] }}" 
+              data-price="{{ hotels['price'] }}"
+              data-size="{{ hotels['size'] }}" 
+              data-name="{{ hotels['Name'] }}" >Book</button>
+
+      <!-- The Modal -->
+      <div id="modal{{ loop.index }}" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="closeModal('modal{{ loop.index }}')">&times;</span>
+          <p>Proceed to book a {{ hotels['size'] }} room in {{ hotels['city'] }} as from {{ hotels['date'] }}  for a price of Ksh {{ hotels['price'] }}
+            at The {{ hotels['Name'] }} Hotel.
+          </p>
+          <form action="{{ url_for('book_hotel') }}" method="post">
+            <input type="hidden" name="city" id="city{{ loop.index }}">
+            <input type="hidden" name="price" id="price{{ loop.index }}">
+            <input type="hidden" name="date" id="date{{ loop.index }}">
+            <input type="hidden" name="name" id="name{{ loop.index }}">
+            <input type="hidden" name="size" id="size{{ loop.index }}">
+          
+            <div class="w3-margin-bottom">
+              <label>Full Name</label>
+              <input class="w3-input w3-border" type="text" name="fullname" required>
+            </div>
+            <div class="w3-margin-bottom">
+              <label>Email</label>
+              <input class="w3-input w3-border" type="email" name="email" required>
+            </div>
+            <div class="w3-margin-bottom">
+              <label>Phone Number</label>
+              <input class="w3-input w3-border" type="text" name="phonenumber" required>
+            </div>
+            <div class="w3-margin-bottom">
+              <label>Room Number</label>
+              <input class="w3-input w3-border" type="text" name="roomnumber" required>
+            </div>
+            <button class="w3-button w3-red" type="submit">Book</button>
+            <button type="button" class="w3-button w3-gray" onclick="closeModal('modal{{ loop.index }}')">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<script>
+  function openModal(modalId, btn) {
+    document.getElementById(modalId).style.display = "block";
+    
+    document.getElementById('city' + modalId.replace('modal', '')).value = btn.getAttribute('data-city');
+    document.getElementById('price' + modalId.replace('modal', '')).value = btn.getAttribute('data-price');
+    document.getElementById('size' + modalId.replace('modal', '')).value = btn.getAttribute('data-size');
+    document.getElementById('name' + modalId.replace('modal', '')).value = btn.getAttribute('data-name');
+    document.getElementById('date' + modalId.replace('modal', '')).value = btn.getAttribute('data-date');
+    
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = "none";
+  }
+
+  window.onclick = function(event) {
+    var modals = document.getElementsByClassName('modal');
+    for (var i = 0; i < modals.length; i++) {
+      if (event.target == modals[i]) {
+        modals[i].style.display = "none";
+      }
+    }
+  }
+</script>
+
+  
+<!-- Page content -->
+<div class="w3-content" style="max-width:1532px;">
+
+  
+  <div class="w3-row-padding w3-large w3-center" style="margin:32px 0">
+    <div class="w3-third"><i class="fa fa-map-marker w3-text-red"></i> 423 Some adr, Nairobi, KE</div>
+    <div class="w3-third"><i class="fa fa-phone w3-text-red"></i> Phone: +254 151515</div>
+    <div class="w3-third"><i class="fa fa-envelope w3-text-red"></i> Email: mail@mail.com</div>
+  </div>
+
+  <div class="w3-panel w3-red w3-leftbar w3-padding-32">
+    <h6><i class="fa fa-info w3-deep-orange w3-padding w3-margin-right"></i> On demand, we can offer playstation, babycall, children care, dog equipment, etc.</h6>
+  </div>
+
+
+  <div class="w3-container w3-padding-32 w3-black w3-opacity w3-card w3-hover-opacity-off" style="margin:32px 0;">
+    <h2>Get the best offers first!</h2>
+    <p>Join our newsletter.</p>
+    <label>E-mail</label>
+    <input class="w3-input w3-border" type="text" placeholder="Your Email address">
+    <button type="button" class="w3-button w3-red w3-margin-top">Subscribe</button>
+  </div>
+
+  <div class="w3-container" id="contact">
+    <h2>Contact</h2>
+    <p>If you have any questions, do not hesitate to ask them.</p>
+    <i class="fa fa-map-marker w3-text-red" style="width:30px"></i> Nairobi, KE<br>
+    <i class="fa fa-phone w3-text-red" style="width:30px"></i> Phone: +245 151515<br>
+    <i class="fa fa-envelope w3-text-red" style="width:30px"> </i> Email: mail@mail.com<br>
+    <form action="/action_page.php" target="_blank">
+      <p><input class="w3-input w3-padding-16 w3-border" type="text" placeholder="Name" required name="Name"></p>
+      <p><input class="w3-input w3-padding-16 w3-border" type="text" placeholder="Email" required name="Email"></p>
+      <p><input class="w3-input w3-padding-16 w3-border" type="text" placeholder="Message" required name="Message"></p>
+      <p><button class="w3-button w3-black w3-padding-large" type="submit">SEND MESSAGE</button></p>
+    </form>
+  </div>
+
+<!-- End page content -->
+</div>
+
+<!-- Footer -->
+<footer class="w3-padding-32 w3-black w3-center w3-margin-top">
+  <h5>Find Us On</h5>
+  <div class="w3-xlarge w3-padding-16">
+    <i class="fa fa-facebook-official w3-hover-opacity"></i>
+    <i class="fa fa-instagram w3-hover-opacity"></i>
+    <i class="fa fa-snapchat w3-hover-opacity"></i>
+    <i class="fa fa-pinterest-p w3-hover-opacity"></i>
+    <i class="fa fa-twitter w3-hover-opacity"></i>
+    <i class="fa fa-linkedin w3-hover-opacity"></i>
+  </div>
+  <p> &COPY; Copyright 2024</p>
+</footer>
+
+<!-- Add Google Maps -->
+<script>
+function myMap() {
+  myCenter=new google.maps.LatLng(41.878114, -87.629798);
+  var mapOptions= {
+    center:myCenter,
+    zoom:12, scrollwheel: false, draggable: false,
+    mapTypeId:google.maps.MapTypeId.ROADMAP
+  };
+  var map=new google.maps.Map(document.getElementById("googleMap"),mapOptions);
+
+  var marker = new google.maps.Marker({
+    position: myCenter,
+  });
+  marker.setMap(map);
+}
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBu-916DdpKAjTmJNIgngS6HL_kDIKU0aU&callback=myMap"></script>
+<!--
+To use this code on your website, get a free API key from Google.
+Read more at: https://www.w3schools.com/graphics/google_maps_basic.asp
+-->
+
+</body>
+</html>
